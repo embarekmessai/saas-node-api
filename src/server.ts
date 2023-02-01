@@ -1,9 +1,10 @@
 import app from './app'
 import Debug from 'debug';
 import http from 'http';
+import * as dotenv from 'dotenv'
 
 const debug = Debug('saas-api:server');
-
+dotenv.config()
 /**
  * Get port from environment and store in Express.
  */
