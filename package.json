@@ -4,9 +4,8 @@
   "description": "Multi Tenant App",
   "private": true,
   "main": "dist/server.js",
-  "type": "module",
   "scripts": {
-    "dev": "nodemon --watch './**/*.ts' --exec 'node -r ts-node' ./src/server",
+    "dev": "nodemon --watch './**/*.ts' --exec ts-node ./src/server",
     "start": "node ./bin/www",
     "build": "tsc",
     "build:watch": "tsc --watch"
