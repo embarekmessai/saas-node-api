@@ -13,16 +13,13 @@
         "forceConsistentCasingInFileNames": true,
         "baseUrl": ".",
         "paths": {
-            "*": [
-                "node_modules/*",
-                "src/types/*"
-            ],
             "@/*": [
                 "./src/*"
             ]
         }
     },
     "include": [
-        "src/**/*"
-, "routes"    ]
+        "src/**/*", 
+        "routes"    
+    ]
 }
