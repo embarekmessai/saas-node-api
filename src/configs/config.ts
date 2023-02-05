@@ -1,3 +1,6 @@
+import * as dotenv from 'dotenv'
+
+dotenv.config()
 
 type Config = {
     app_name: string;
@@ -9,6 +12,7 @@ type Config = {
     cipher: string;
     locale: string;
     timezone: string;
+    mongo_connection: string;
 }
 
 const config: Config = {
@@ -54,7 +58,12 @@ const config: Config = {
     /**
      *  Application Timezone
      */
-    timezone: process.env.TIMEZONE || 'UTC'
+    timezone: process.env.TIMEZONE || 'UTC',
+
+    /**
+     *  MongoDB connection URL
+     */
+    mongo_connection: process.env.MONGO_URL
 
     
 };
