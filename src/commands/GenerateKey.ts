@@ -5,14 +5,20 @@ import * as dotenv from 'dotenv'
 
 dotenv.config();
 
-const randomString = (length: number) => {
-    let result = '';
-    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-    for (let i = 0; i < length; i++) {
-      result += characters.charAt(Math.floor(Math.random() * characters.length));
-    }
-    return result;
+ /**
+   * Create a reandom string
+   * 
+   * @param length 
+   * @returns result
+   */
+ const randomString = (length: number) => {
+  let result = '';
+  const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  for (let i = 0; i < length; i++) {
+    result += characters.charAt(Math.floor(Math.random() * characters.length));
   }
+  return result;
+}
 
 const randomValue = randomString(16)
 
