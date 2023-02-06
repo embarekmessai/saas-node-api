@@ -20,7 +20,7 @@ declare module 'express' {
  *  Vatiables
  */
 const key : string = '_csrf';
-const header : string = 'x-csrf-token';
+const header : string = 'xsrf-token';
 // const secret : string = '_csrfSecret';
 
 const CSRF = () => {  
@@ -105,8 +105,20 @@ const CSRF = () => {
       next(new Error('forbidden'))
     } 
   
+
+    let _token, cookieValue;
+    if(req.headers.cookie && (req.headers.cookie).match(/(?:XSRF-TOKEN=)/)[0] === 'XSRF-TOKEN=' ) {
+      cookieValue =((req.headers.cookie).split('=')[1]).split(';')[0];
+    } 
+           
     // Validate token
-    const _token = (req.body && req.body[key]) || req.headers[header.toLowerCase()];
+    if(!cookieValue) {
+      _token = (req.body && req.body[key]) || '';
+    
+    } else {
+      _token = (jwt.verify(cookieValue, config.key) as jwt.JwtPayload).token;
+    }; 
+    
 
     if (Validate(req, _token)) {
         next();
