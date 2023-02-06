@@ -32,3 +32,12 @@ export const registerValidator = validate([
         .withMessage('Password confirmation do not match')
         .bail(),
 ]);
+
+/**
+ *  Email validation
+ */
+export const emailValidator = validate([
+    check('email')
+        .isEmail()
+        .withMessage('Invalid email address')
+]);
