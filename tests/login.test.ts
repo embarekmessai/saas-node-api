@@ -51,7 +51,24 @@ describe('Login Endpoint', () => {
         password: 'invalid',
         _csrf: expect.any(String)
       });
-    expect(403);
-    expect((res: request.Response) => (res.body).toHaveProperty('message'));
+    expect(400);
+    expect((res: request.Response) => (res.body).toHaveProperty('errors[0].msg', /The password is incorrect./));
+    expect((res: request.Response) => (res.body).toHaveProperty('errors[0].param', 'current_password'));
   });
+
+  // Test user confirmation password not match
+  it('Login with not exiting email', ()=> {
+        
+    request(app).get('/api/v1/csrf-cookie', async()=> {
+        await request(app)
+                .post('/api/v1/register')
+                .send({
+                    email: "test@test.com",
+                    password:"123456789"
+                })
+                .expect(400);
+                expect((res: request.Response) => (res.body).toHaveProperty('errors[0].msg', /The selected email is invalid./));
+                expect((res: request.Response) => (res.body).toHaveProperty('errors[0].param', 'email'));
+    });
+});
 });
