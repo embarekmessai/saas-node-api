@@ -2,8 +2,6 @@ import express from 'express';
 import cookieParser from 'cookie-parser';
 import morgan from 'morgan';
 import cors from 'cors';
-import authRouter from './routes/auth';
-import userRouter from './routes/users';
 import session from "express-session";
 import config from './configs/config';
 import MongoStore from "connect-mongo";
@@ -11,6 +9,13 @@ import mongoose from 'mongoose';
 import bluebird from 'bluebird';
 import helmet from 'helmet';
 import CSRF from './configs/tokenize';
+
+/**
+ *  Routes
+ */
+import authRouter from './routes/auth';
+import userRouter from './routes/users';
+import csrfRouter from './routes/token';
 
 var app = express();
 
@@ -54,7 +59,8 @@ app.use(session({
 app.use(CSRF());
 app.use(helmet());
 
+app.use('/api/v1', csrfRouter); // Auth routes [ Login, Register & Logout]
 app.use('/api/v1', authRouter); // Auth routes [ Login, Register & Logout]
-app.use('/', userRouter); // User routes 
+app.use('/api/v1', userRouter); // User routes 
 
 export default app;
