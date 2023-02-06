@@ -38,6 +38,7 @@ export type UserDocument = Document & {
     createdAt: Date;
     updatedAt: Date;
     comparePassword: comparePasswordFunction;
+    _doc:any;
 };
 
 type comparePasswordFunction = (candidatePassword: string) => boolean;
