@@ -13,8 +13,9 @@ import CSRF from './configs/tokenize';
 /**
  *  Routes
  */
+import homeRouter from './routes/home';
 import authRouter from './routes/auth';
-import userRouter from './routes/users';
+import profileRouter from './routes/profile';
 import csrfRouter from './routes/token';
 
 var app = express();
@@ -59,8 +60,9 @@ app.use(session({
 app.use(CSRF());
 app.use(helmet());
 
-app.use('/api/v1', csrfRouter); // Auth routes [ Login, Register & Logout]
+app.use('/api/v1', homeRouter); 
+app.use('/api/v1', csrfRouter); 
 app.use('/api/v1', authRouter); // Auth routes [ Login, Register & Logout]
-app.use('/api/v1', userRouter); // User routes 
+app.use('/api/v1', profileRouter); // User routes 
 
 export default app;
