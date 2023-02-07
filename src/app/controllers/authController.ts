@@ -85,10 +85,10 @@ export const register = async(req: Request, res: Response) => {
         savedUser.accessToken = jwtToken;
         savedUser.save();
 
-        const { password, createdAt, updatedAt, accessToken, ...others } = savedUser.$clone();
+        const { password, createdAt, updatedAt, accessToken, ...others } = savedUser._doc;
 
         // Send response with data & access token
-        res.status(200).json({...others, accessToken });
+        res.status(200).json({...others, accessToken, message: "Your registration has been done!" });
 
     } catch (err) {
         const status = err.status || 500;
@@ -149,3 +149,62 @@ export const passwordResetLink = async(req: Request, res: Response) => {
     return res.status(200).json({success: "We have emailed your password reset link!"});
 
 };
+
+/**
+ *  Display the password reset view
+ *  @param Request req
+ *  @return Response res 
+ */
+export const passwordCreate = async(req: Request, res: Response) => {
+        const token = req.params.token;
+
+        // Find user by token
+        const user = await User.findOne({passwordResetToken: token});
+
+        // check if user not found
+        if(!user) {
+            return res.status(404).json({errors: [{msg: 'Page not found!', param: 'page'}]})
+        }
+
+        const TimeNow = new Date(Date.now());
+
+        if(TimeNow > user.passwordResetExpires){
+            return res.status(400).json({ errors: [{msg: "Expired link", param: "date"}] });
+        }
+
+        return res.status(200).json({message : "Valid link", token: user.passwordResetToken})
+
+}
+
+/**
+ *  Update password
+ *  @param Request req
+ *  @return Response res
+ * 
+ */
+export const passwordUpdate = async(req: Request, res: Response) => {
+    const token = req.body.token;
+
+    // Find user by token
+    const user = await User.findOne({passwordResetToken: token});
+
+    // check if user not found
+    if(!user) {
+        return res.status(404).json({errors: [{msg: 'Page not found!', param: 'page'}]})
+    }
+
+    // Check if current is correct
+    const candidatePassword = req.body.current_password;
+    const userPassword = CryptoJS.AES.decrypt(user.password, process.env.PASS_SEC).toString(CryptoJS.enc.Utf8);
+
+    if( userPassword !== candidatePassword ) {
+        return res.status(400).json({errors: [{msg : "The password is incorrect.", param: 'current_password'}]});
+    }
+
+    // Update password
+    user.password = req.body.password;
+    user.save();
+    
+    return res.status(200).json({message: "Your password has been reset!"});
+    
+}
