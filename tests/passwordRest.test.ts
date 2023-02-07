@@ -12,7 +12,7 @@ describe('Send email to the server for password recovery', () => {
         user = await User.create({
             firstname: 'test',
             lastname : 'test',
-            email: 'test@test.com',
+            email: 'test@reset.com',
             password: '123456789'
         });
 
@@ -22,14 +22,14 @@ describe('Send email to the server for password recovery', () => {
     });
 
     afterEach(async () => {
-        await User.deleteOne({email: 'test@test.com'});
+        await User.deleteOne({email: 'test@reset.com'});
     });
 
     // Send password rest link
     it('Send a password link email', async() => {
         const res = await request(app).post('/api/v1/forgot-password')
                         .set('Cookie', csrfCookie)
-                        .send({ email: 'test@test.com'})
+                        .send({ email: 'test@reset.com'})
                         .expect(200);
                         expect(res.body).toHaveProperty('success', 'We have emailed your password reset link!')
     })

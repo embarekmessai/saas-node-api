@@ -11,7 +11,7 @@ describe('Register Endpoint', ()=> {
         csrfCookie = (await response).header['set-cookie'];
     })
     afterEach(async () => {
-        await User.deleteOne({email: 'test@test.com'});
+        await User.deleteOne({email: 'test@register.com'});
     });
 
     // Test user registration
@@ -23,7 +23,7 @@ describe('Register Endpoint', ()=> {
                 .send({
                     firstname: "test",
                     lastname : "test",
-                    email: "test@test.com",
+                    email: "test@register.com",
                     password:"123456789",
                     password_confirmation:"123456789"
                 })
@@ -40,7 +40,7 @@ describe('Register Endpoint', ()=> {
                 .send({
                     firstname: "test",
                     lastname : "test",
-                    email: "test@test.com",
+                    email: "test@register.com",
                     password:"123456789",
                     password_confirmation:"123456"
                 })
@@ -58,7 +58,7 @@ describe('Register with same email', ()=> {
         user = await User.create({
             firstname: 'test_01',
             lastname : 'test_01',
-            email: 'test_01@test.com',
+            email: 'test_01@register.com',
             password: '123456789'
         });
         const response = request(app).get('/api/v1/csrf-cookie');
@@ -67,7 +67,7 @@ describe('Register with same email', ()=> {
     });
     
     afterEach(async () => {
-        await User.deleteOne({email: 'test_01@test.com'});
+        await User.deleteOne({email: 'test_01@register.com'});
     });
 
     // Test regiter user with existing email address
@@ -79,7 +79,7 @@ describe('Register with same email', ()=> {
                 .send({
                     firstname: "test",
                     lastname : "test",
-                    email: "test_01@test.com",
+                    email: "test_01@register.com",
                     password:"123456789",
                     password_confirmation:"123456789"
                 })

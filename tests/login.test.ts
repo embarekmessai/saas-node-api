@@ -18,7 +18,7 @@ describe('Login Endpoint', () => {
     user = await User.create({
         firstname: 'test',
         lastname : 'test',
-        email: 'test@example.com',
+        email: 'test@login.com',
         password: 'test123',
     });
 
@@ -28,7 +28,7 @@ describe('Login Endpoint', () => {
   });
 
   afterEach(async () => {
-    await User.deleteMany({email: 'test@example.com'});
+    await User.deleteMany({email: 'test@login.com'});
   });
 
   it('should return 200 and access token', async () => {
@@ -36,12 +36,12 @@ describe('Login Endpoint', () => {
       .post('/api/v1/login')
       .set('Cookie', csrfCookie)
       .send({
-        email: 'test@example.com',
+        email: 'test@login.com',
         password: 'test123'
       });
     expect(200);
     expect((res: request.Response) => (res.body).toHaveProperty('accessToken'));
-    // expect(res.body).toHaveProperty('email', 'test@example.com');
+    // expect(res.body).toHaveProperty('email', 'test@login.com');
   });
 
   it('should return 403 with invalid password', async () => {
@@ -49,7 +49,7 @@ describe('Login Endpoint', () => {
       .post('/api/v1/login')
       .set('Cookie', csrfCookie)
       .send({
-        email: 'test@example.com',
+        email: 'test@login.com',
         password: 'invalid'
       });
     expect(400);
