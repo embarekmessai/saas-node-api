@@ -12,10 +12,10 @@ export const loginValidator = validate([
 
 export const registerValidator = validate([
     check('firstname')
-        .isLength({ min: 1 })
+        .exists({ checkNull: true, checkFalsy: true })
         .withMessage('Firstname must not be empty'),
     check('lastname')
-        .isLength({ min: 1 })
+        .exists({ checkNull: true, checkFalsy: true })
         .withMessage('Lastname must not be empty'),
     check('email')
         .isEmail()
@@ -40,4 +40,37 @@ export const emailValidator = validate([
     check('email')
         .isEmail()
         .withMessage('Invalid email address')
+]);
+
+/**
+ *  Password validation
+ */
+export const passwordValidation = validate([
+    check('password')
+        .exists()
+        .isLength({ min: 8 })
+        .withMessage('must be at least 8 chars long')
+        .bail(),
+    check('password_confirmation')
+        .exists()
+        .custom((value, { req }) => value === req.body.password)
+        .withMessage('Password confirmation do not match')
+        .bail(),
+])
+
+/**
+ *  User profile validation
+ */
+
+export const userProfileValidator = validate([
+    check('firstname')
+        .exists({ checkNull: true, checkFalsy: true })
+        .withMessage('Firstname must not be empty'),
+    check('lastname')
+        .exists({ checkNull: true, checkFalsy: true })
+        .withMessage('Lastname must not be empty'),
+    check('email')
+        .isEmail()
+        .withMessage(value => `${value} is an invalid email address`)
+        .bail(),
 ]);
