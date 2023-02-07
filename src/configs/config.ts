@@ -13,6 +13,7 @@ type Config = {
     locale: string;
     timezone: string;
     mongo_connection: string;
+    pass_key: string;
 }
 
 const config: Config = {
@@ -63,9 +64,12 @@ const config: Config = {
     /**
      *  MongoDB connection URL
      */
-    mongo_connection: process.env.MONGO_URL
+    mongo_connection: process.env.MONGO_URL,
 
-    
+    /**
+     *  Password key
+     */
+    pass_key: process.env.PASS_SEC,
 };
 
 export default config;
