@@ -17,7 +17,7 @@ describe('Register Endpoint', ()=> {
     // Test user registration
     it('Regiter new user', async()=> {
 
-        await request(app)
+        const res = await request(app)
                 .post('/api/v1/register')
                 .set('Cookie', csrfCookie)
                 .send({
@@ -28,7 +28,7 @@ describe('Register Endpoint', ()=> {
                     password_confirmation:"123456789"
                 })
                 .expect(200);
-        
+                expect(res.body).toHaveProperty('message', 'Your registration has been done!');
     });
 
     // Test user confirmation password not match
