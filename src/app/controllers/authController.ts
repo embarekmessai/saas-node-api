@@ -105,7 +105,8 @@ export const getPasswordRestLink = async(req: Request, res: Response) => {
     return res.status(200).json({_csrf: 'req.csrfToken()'});
 };
 
-export const passwordRestLink = async(req: Request, res: Response) => {
+// Send reset password link
+export const passwordResetLink = async(req: Request, res: Response) => {
     // Find user
     const user = await User.findOne({email: req.body.email});
     
@@ -142,7 +143,7 @@ export const passwordRestLink = async(req: Request, res: Response) => {
     
       transport.sendMail(message, (err, info) => {
         if(err) console.log(err);
-        console.log(info.accepted);
+        console.log(info);
     }) 
     
     return res.status(200).json({success: "We have emailed your password reset link!"});
