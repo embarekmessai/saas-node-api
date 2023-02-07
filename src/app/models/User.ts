@@ -40,7 +40,6 @@ export type UserDocument = Document & {
     profile: Profile;
     createdAt: Date;
     updatedAt: Date;
-    comparePassword: comparePasswordFunction;
     _doc:any;
 };
 
@@ -84,14 +83,5 @@ const userSchema = new Schema<UserDocument>(
         }
     }, { timestamps: true }
     );
-
-    const comparePassword: comparePasswordFunction = function (candidatePassword) {
-        // Get Hashed Passowrd
-        const hashedPassword = CryptoJS.AES.encrypt(candidatePassword, process.env.PASS_SEC).toString();
-        if( hashedPassword === this.password ) {
-            return true;
-        }
-        return false;
-    };
 
 export const User = model<UserDocument>('User', userSchema);
