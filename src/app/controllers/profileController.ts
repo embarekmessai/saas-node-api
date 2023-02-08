@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import { User, Profile } from '../models/User';
+import fs from 'fs';
 
 /**
  *  Get user profile datas
@@ -88,5 +89,44 @@ export const update = async(req: Request, res: Response) => {
     const {password, passwordResetToken, passwordResetExpires, accessToken, ...others} = user._doc;
 
     return res.status(200).json({success: "Profile updated successefully!", profile: others});
+
+}
+
+/**
+ *  Update user avatar
+ *  @param Request req
+ *  @return Response res
+ */
+export const updateAvatar = async(req: Request, res: Response) => {
+    const file = req.file;
+    const filePath = file.path;
+
+    const id = req.params.id; // Get id
+    // Find user
+    const user = await User.findById(id)
+
+    if(!user) {
+        return res.status(400).json({errors: [{msg: 'The selected user is invalid.', param: 'user'}]})
+    }
+
+    const fileName =  Date.now() + '-'+file.originalname
+    // upload file 
+    fs.readFile(filePath, (err, data) => {
+        fs.writeFile(`storage/app/public/avatars/${fileName}`, data, (err) => {
+            if(err) {
+                return res.status(403).json({errors: [{ msg:'Not Modified', param: 'avatar' }]})
+            }
+            fs.unlink(filePath, async(err) => {
+              if(err) {
+                  return res.status(403).json({errors: [{ msg:'Not deleted ftom temp folder', param: 'avatar' }]})
+              }
+            // Save path 
+            user.profile.avatar = `avatars/${fileName}`;
+            await user.save();
+            return res.status(200).json({avatar: user.profile.avatar, message: 'Avatar uploaded successfully' });
+          });
+        });
+      });
+
 
 }
