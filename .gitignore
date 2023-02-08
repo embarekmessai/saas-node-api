@@ -66,3 +66,5 @@ dist/
 DEVDOC.md
 
 storage/*
+
+package-lock.json
