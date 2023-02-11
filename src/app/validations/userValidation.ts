@@ -1,4 +1,4 @@
-import { check } from 'express-validator';
+import { body, check } from 'express-validator';
 import validate from './Validation';
 
 export const loginValidator = validate([
@@ -24,36 +24,35 @@ export const registerValidator = validate([
     check('password')
         .exists()
         .isLength({ min: 8 })
-        .withMessage('must be at least 8 chars long')
-        .bail(),
+        .withMessage('must be at least 8 chars long'),
     check('password_confirmation')
         .exists()
         .custom((value, { req }) => value === req.body.password)
         .withMessage('Password confirmation do not match')
         .bail(),
-]);
-
-/**
- *  Email validation
- */
-export const emailValidator = validate([
-    check('email')
-        .isEmail()
-        .withMessage('Invalid email address')
+    ]);
+    
+    /**
+     *  Email validation
+    */
+   export const emailValidator = validate([
+       check('email')
+       .isEmail()
+       .withMessage('Invalid email address')
+       .bail(),
 ]);
 
 /**
  *  Password validation
  */
 export const passwordValidation = validate([
-    check('password')
+    body('password')
         .exists()
         .isLength({ min: 8 })
-        .withMessage('must be at least 8 chars long')
-        .bail(),
-    check('password_confirmation')
+        .withMessage('Must be at least 8 chars long'),
+    body('password_confirmation')
         .exists()
-        .custom((value, { req }) => value === req.body.password)
+        .custom((value, { req }) => value == req.body.password)
         .withMessage('Password confirmation do not match')
         .bail(),
 ])
