@@ -30,7 +30,6 @@ const CSRF = () => {
    * @returns token
    */
   const setCSRFToken = (res: Response, token: string) => {
-  
     // res.locals[key] = token; // templates rendered with res.render
     // res.set(header, token); // set token to header
     return res.cookie(
@@ -107,8 +106,16 @@ const CSRF = () => {
   
 
     let _token, cookieValue;
-    if(req.headers.cookie && (req.headers.cookie).match(/(?:XSRF-TOKEN=)/)[0] === 'XSRF-TOKEN=' ) {
-      cookieValue =((req.headers.cookie).split('=')[1]).split(';')[0];
+    if(req.headers.cookie) {
+      
+      const cookisArray = req.headers.cookie.split(';');
+      console.log(cookisArray);
+
+      cookisArray.forEach(element => {
+        if(element.split('=')[0].match(/XSRF-TOKEN/) && 
+          element.split('=')[0].match(/XSRF-TOKEN/)[0] == 'XSRF-TOKEN') 
+          cookieValue = element.split('=')[1];
+      });
     } 
            
     // Validate token
