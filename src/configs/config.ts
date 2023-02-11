@@ -14,6 +14,7 @@ type Config = {
     timezone: string;
     mongo_connection: string;
     pass_key: string;
+    origin_url: string | Array<string>;
 }
 
 const config: Config = {
@@ -70,6 +71,11 @@ const config: Config = {
      *  Password key
      */
     pass_key: process.env.PASS_SEC,
+
+    /**
+     *  Orgine url
+     */
+    origin_url: process.env.ORIGIN_URL,
 };
 
 export default config;
