@@ -39,7 +39,13 @@ app.use(morgan('dev'));
 app.use(express.json());
 app.use(cookieParser());
 app.use(express.urlencoded({ extended: true }));
-app.use(cors());
+
+var corsOptions = {
+    credentials: true,
+    origin: config.origin_url,
+    optionsSuccessStatus: 200 // some legacy browsers (IE11, various SmartTVs) choke on 204
+  }
+app.use(cors(corsOptions));
 
 // Secure the app
 app.use(session({
