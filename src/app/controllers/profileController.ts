@@ -1,6 +1,8 @@
 import { Request, Response } from "express";
 import { User, Profile } from '../models/User';
 import fs from 'fs';
+import CryptoJS from 'crypto-js';
+import config from '../../configs/config';
 
 /**
  *  Get user profile datas
@@ -117,16 +119,48 @@ export const updateAvatar = async(req: Request, res: Response) => {
                 return res.status(403).json({errors: [{ msg:'Not Modified', param: 'avatar' }]})
             }
             fs.unlink(filePath, async(err) => {
-              if(err) {
-                  return res.status(403).json({errors: [{ msg:'Not deleted ftom temp folder', param: 'avatar' }]})
-              }
-            // Save path 
-            user.profile.avatar = `avatars/${fileName}`;
-            await user.save();
-            return res.status(200).json({avatar: user.profile.avatar, message: 'Avatar uploaded successfully' });
-          });
+                if(err) {
+                    return res.status(403).json({errors: [{ msg:'Not deleted ftom temp folder', param: 'avatar' }]})
+                }
+                // Save path 
+                user.profile.avatar = `avatars/${fileName}`;
+                await user.save();
+                return res.status(200).json({avatar: user.profile.avatar, message: 'Avatar uploaded successfully' });
+            });
         });
       });
 
+}
 
+/**
+ *  Update profile password
+ *  @param Request req
+ *  @return Response res
+ * 
+ */
+export const profilePasswordUpdate = async(req: Request, res: Response) => {
+    const id = req.body.id;
+
+    // Find user by token
+    const user = await User.findOne({_id: id});
+
+    // check if user not found
+    if(!user) {
+        return res.status(404).json({errors: [{msg: 'Page not found!', param: 'page'}]})
+    }
+
+    // Check if current is correct
+    const candidatePassword = req.body.current_password;
+    const userPassword = CryptoJS.AES.decrypt(user.password, config.pass_key).toString(CryptoJS.enc.Utf8);
+
+    if( userPassword !== candidatePassword ) {
+        return res.status(400).json({errors: [{msg : "The password is incorrect.", param: 'current_password'}]});
+    }
+
+    // Update password
+    user.password = req.body.password;
+    user.save();
+    
+    return res.status(200).json({message: "Your password has been reset!"});
+    
 }
