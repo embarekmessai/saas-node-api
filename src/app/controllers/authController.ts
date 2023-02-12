@@ -6,6 +6,8 @@ import CryptoJS from 'crypto-js';
 import { mailer } from '../../configs/mail';
 import nodemailer from 'nodemailer';
 import { randomString } from '../helpers/helper';
+import config from '../../configs/config';
+import { DateTime } from 'luxon';
 /**
  * Get auth token
  * @param req 
@@ -108,21 +110,26 @@ export const getPasswordRestLink = async(req: Request, res: Response) => {
 // Send reset password link
 export const passwordResetLink = async(req: Request, res: Response) => {
     // Find user
-    const user = await User.findOne({email: req.body.email});
+    const user: UserDocument = await User.findOne({email: req.body.email});
     
     // Check user existing
     if(!user) {
         return res.status(400).json({errors: [{msg: "We can't find a user with that email address.", param: "email"}]});
     }
     
+    const encryptDatas = JSON.stringify({id: user._id as string, email: user.email})
     // Send rest password link email
     // Generate a reset password token
-    const resetToken = CryptoJS.SHA256(randomString(32)).toString(CryptoJS.enc.Hex);
+    // const resetToken = CryptoJS.SHA256(randomString(32)).toString(CryptoJS.enc.Hex);
+    const resetToken = CryptoJS.AES.encrypt(encryptDatas, config.key).toString();
+    const newExpiresDate = DateTime.now().setZone(config.time_zone).plus({ hours: 1, minutes: 2 });// 1 hour
+
     user.passwordResetToken = resetToken;
-    user.passwordResetExpires = new Date(Date.now() + 3600000); // 1 hour
+    user.passwordResetExpires = newExpiresDate.toJSDate();           
     await user.save();
+
     // Send the password reset email to the user
-    const resetLink = `http://localhost:5000/reset-password/${resetToken}`;
+    const resetLink = `${config.origin_url}/reset-password?token=${resetToken}`;
 
     const message ={
         from: mailer.sender.from,
@@ -156,17 +163,20 @@ export const passwordResetLink = async(req: Request, res: Response) => {
  *  @return Response res 
  */
 export const passwordCreate = async(req: Request, res: Response) => {
-        const token = req.params.token;
-
-        // Find user by token
-        const user = await User.findOne({passwordResetToken: token});
+        const token = req.query.token;
+        
+        // Decrypte token
+        const getTokenDatas = CryptoJS.AES.decrypt(token as string, config.key).toString(CryptoJS.enc.Utf8);
+        // Find user by id
+        const tikenDatas = JSON.parse(getTokenDatas);
+        const user = await User.findById(tikenDatas.id);
 
         // check if user not found
         if(!user) {
             return res.status(404).json({errors: [{msg: 'Page not found!', param: 'page'}]})
         }
 
-        const TimeNow = new Date(Date.now());
+        const TimeNow = DateTime.now().setZone(config.time_zone).toJSDate();
 
         if(TimeNow > user.passwordResetExpires){
             return res.status(400).json({ errors: [{msg: "Expired link", param: "date"}] });
@@ -185,25 +195,30 @@ export const passwordCreate = async(req: Request, res: Response) => {
 export const passwordUpdate = async(req: Request, res: Response) => {
     const token = req.body.token;
 
-    // Find user by token
-    const user = await User.findOne({passwordResetToken: token});
+    // Decrypte token
+    const getTokenDatas = CryptoJS.AES.decrypt(token, config.key).toString(CryptoJS.enc.Utf8);
+
+    // Find user by id
+    const tikenDatas = JSON.parse(getTokenDatas);
+    const user = await User.findById(tikenDatas.id);
 
     // check if user not found
     if(!user) {
         return res.status(404).json({errors: [{msg: 'Page not found!', param: 'page'}]})
     }
 
-    // Check if current is correct
-    const candidatePassword = req.body.current_password;
-    const userPassword = CryptoJS.AES.decrypt(user.password, process.env.PASS_SEC).toString(CryptoJS.enc.Utf8);
+    const TimeNow = DateTime.now().setZone(config.time_zone).toJSDate();
+    console.log(TimeNow, user.email);
 
-    if( userPassword !== candidatePassword ) {
-        return res.status(400).json({errors: [{msg : "The password is incorrect.", param: 'current_password'}]});
+    if(TimeNow > user.passwordResetExpires){
+       return res.status(400).json({ errors: [{msg: "Expired link", param: "date"}] });
     }
 
     // Update password
-    user.password = req.body.password;
-    user.save();
+    user.password = CryptoJS.AES.encrypt(req.body.password, process.env.PASS_SEC).toString();
+    user.passwordResetExpires = TimeNow;
+
+    await user.save().then(() => console.log('User updated'));
     
     return res.status(200).json({message: "Your password has been reset!"});
     

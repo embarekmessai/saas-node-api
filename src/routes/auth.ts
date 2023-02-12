@@ -16,7 +16,7 @@ router.post('/forgot-password', emailValidator, authController.passwordResetLink
 router.get('/forgot-password', authController.getPasswordRestLink);
 
 // Reset password 
-router.get('/reset-password/:token', authController.passwordCreate);
+router.get('/reset-password', authController.passwordCreate);
 router.post('/reset-password', passwordValidation, authController.passwordUpdate);
 
 // Logout route
