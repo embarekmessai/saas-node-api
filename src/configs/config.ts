@@ -15,6 +15,7 @@ type Config = {
     mongo_connection: string;
     pass_key: string;
     origin_url: string | Array<string>;
+    time_zone: string;
 }
 
 const config: Config = {
@@ -76,6 +77,11 @@ const config: Config = {
      *  Orgine url
      */
     origin_url: process.env.ORIGIN_URL,
+
+    /**
+     *  App default time zone
+     */
+    time_zone: process.env.TIMEZONE || 'Europe/Paris',
 };
 
 export default config;
