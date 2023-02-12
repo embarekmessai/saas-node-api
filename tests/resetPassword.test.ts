@@ -1,25 +1,31 @@
 import request from 'supertest';
 import { User, UserDocument } from '../src/app/models/User';
 import app from '../src/app';
-import { randomString } from '../src/app/helpers/helper';
 import CryptoJS from 'crypto-js';
 import config from '../src/configs/config';
+import { DateTime } from 'luxon';
 
 describe('Update user password profile', ()=> {
     let user: UserDocument;
-    const resetToken = CryptoJS.SHA256(randomString(32)).toString(CryptoJS.enc.Hex);
+    
     let csrfCookie: string;
-
+    let resetToken: string;
+    
     beforeEach(async () => {
-        // Create a user
+      // Create a user
         user = await User.create({
             firstname: 'test',
             lastname : 'test',
             email: 'test@update-password.com',
             password: CryptoJS.AES.encrypt('test123', config.pass_key).toString(),
-            passwordResetToken: resetToken,
-            passwordResetExpires: new Date(Date.now() + 60 * 60 * 5)
-        });
+          });
+          
+          // Set a reset password token
+          const encryptDatas = JSON.stringify({id: user._id as string, email: user.email})
+          resetToken = CryptoJS.AES.encrypt(encryptDatas, config.key).toString();
+          user.passwordResetToken = resetToken;
+          user.passwordResetExpires = DateTime.now().setZone(config.time_zone).plus({ hours: 2, minutes: 2 }).toJSDate();
+          await user.save();
 
         // Generate csrf token
         const response = request(app).get('/api/v1/csrf-cookie');
@@ -33,7 +39,7 @@ describe('Update user password profile', ()=> {
     // Update user password validation
   it('Update user password validation', async() => {
 
-      const res = await request(app).get(`/api/v1/reset-password/${user.passwordResetToken}`)
+      const res = await request(app).get(`/api/v1/reset-password?token=${user.passwordResetToken}`)
                       .expect(200);
                       expect(res.body).toHaveProperty('message',"Valid link");
     });
